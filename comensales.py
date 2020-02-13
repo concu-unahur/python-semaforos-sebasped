@@ -11,16 +11,15 @@ class Cocinero(threading.Thread):
 
   def run(self):
     global platosDisponibles
+    global semaCoci
+
     while (True):
       semaCoci.acquire()
-      semaPlato.acquire() #el cocinero está reponiendo platos, asi que nadie puede comer
       try:
-        time.sleep(1)
         logging.info('Reponiendo los platos...')
         platosDisponibles = 3
       finally:
-        semaPlato.release()
-        # pass
+        pass
 
 class Comensal(threading.Thread):
   def __init__(self, numero):
@@ -29,26 +28,32 @@ class Comensal(threading.Thread):
 
   def run(self):
     global platosDisponibles
+    global semaCoci
+    global semaPlato
     
     semaPlato.acquire()
     try:
       if platosDisponibles>0:
-          platosDisponibles -= 1
-          time.sleep(1)
-          logging.info(f'¡Qué rico! Quedan {platosDisponibles} platos')
+          self.comer()
       else:
         semaCoci.release()
+        time.sleep(1)
+        self.comer()
     finally:
         semaPlato.release()
 
+  def comer(self):
+    global platosDisponibles
+    platosDisponibles -= 1
+    logging.info(f'¡Qué rico! Quedan {platosDisponibles} platos')
+
+
 semaPlato = threading.Semaphore(1)
-semaCoci = threading.Semaphore(1)
+semaCoci = threading.Semaphore(0)
 
 platosDisponibles = 3
-semaCoci.acquire() # como hay platos, entonces que el cocinero espera
 
 Cocinero().start()
 
-for i in range(10):
+for i in range(16):
   Comensal(i).start()
-
