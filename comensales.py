@@ -35,13 +35,17 @@ class Comensal(threading.Thread):
     
     semaPlato.acquire()
     try:
-      if platosDisponibles>0:
-          self.comer()
-      else:
+      # if platosDisponibles>0:
+      #     self.comer()
+      # else:
+      #   semaCoci.release()
+      #   # time.sleep(1)
+      #   semaPlato.acquire()
+      #   self.comer()
+      if platosDisponibles == 0:
         semaCoci.release()
-        # time.sleep(1)
         semaPlato.acquire()
-        self.comer()
+      self.comer()
     finally:
         semaPlato.release()
 
@@ -58,5 +62,5 @@ platosDisponibles = 3
 
 Cocinero().start()
 
-for i in range(8):
+for i in range(17):
   Comensal(i).start()
