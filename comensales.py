@@ -31,7 +31,7 @@ class Comensal(threading.Thread):
     semaPlato.acquire()
     try:
       while platosDisponibles == 0:
-      # if platosDisponibles == 0:
+      # if platosDisponibles == 0: # el intento fallido en clase.
         semaCoci.release()
         semaPlato.acquire()
       self.comer()
